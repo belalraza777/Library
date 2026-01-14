@@ -1,0 +1,58 @@
+/* index.css - Global Stylesheet */
+/* Import TailwindCSS */
+@import "tailwindcss";
+
+/* Apply base styles */
+@layer base {
+  body {
+    background-color: #111827 !important; /* constant dark background */
+    color: white !important;
+  }
+}
+
+/* Root element styles */
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #111827 !important; /* lock background */
+}
+
+/* Button styles */
+.btn {
+  width: max-content;
+  height: max-content;
+  border: 3px solid #315cfd;
+  transition: all 0.4s;
+  cursor: pointer;
+  background: white;
+  font-weight: 550;
+  color: black;
+  padding: 2px 12px;
+  border-radius: 8px;
+}
+
+.btn:hover {
+  background: #315cfd;
+  color: white;
+}
+
+/* Desktop NavLink */
+.nav-link {
+  @apply px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white;
+}
+
+.nav-link.active {
+  background-color: #111827 !important; /* same constant bg */
+  color: white !important;
+}
+
+/* Mobile NavLink */
+.mobile-link {
+  @apply block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white;
+}
+
+.mobile-link.active {
+  background-color: #111827 !important; /* same constant bg */
+  color: white !important;
+}
