@@ -12,7 +12,16 @@ const getAllIssues = async (req, res) => {
 const issueBook = async (req, res) => {
   const { bookId } = req.params; // get book id from route params
   const book = await Books.findById(bookId); // find the book in DB
-  const user = await User.findOne({ email: req.user.email }); // get current logged-in user
+  
+  if (!book) {
+    return res.status(404).json({ success: false, message: "Book not found", error: "Not Found" });
+  }
+  
+  const user = await User.findById(req.user.id); // get current logged-in user
+  
+  if (!user) {
+    return res.status(404).json({ success: false, message: "User not found", error: "Not Found" });
+  }
 
   // check if the user already issued this book and hasn’t returned it yet
   const alreadyIssued = await Issues.findOne({ userId: user._id, bookId, returnDate: null });
@@ -80,6 +89,11 @@ const mybooks = async (req, res) => {
       model: "Books",
     },
   });
+  
+  if (!user) {
+    return res.status(404).json({ success: false, message: "User not found", error: "Not Found" });
+  }
+  
   const mybooks = user.issuedBooks;
   return res.json({ success: true, message: "My books fetched successfully", data: mybooks });
 };
@@ -89,6 +103,11 @@ const mybooks = async (req, res) => {
 const requestToReturnBook = async (req, res) => {
   const { issueId } = req.params;
   const issue = await Issues.findById(issueId).populate("bookId");
+  
+  if (!issue) {
+    return res.status(404).json({ success: false, message: "Issue record not found", error: "Not Found" });
+  }
+  
   issue.isReturnRequest = true;
   await issue.save();
   return res.json({ success: true, message: "Request Sent for Return Successfully!", data: issue });
@@ -98,6 +117,10 @@ const requestToReturnBook = async (req, res) => {
 const approvedReturn = async (req, res) => {
    const { issueId } = req.params;
     const issue = await Issues.findById(issueId).populate("bookId").populate("userId");
+    
+    if (!issue) {
+      return res.status(404).json({ success: false, message: "Issue record not found", error: "Not Found" });
+    }
 
     // Remove the issued record from the user's list
     // await User.findByIdAndUpdate(issue.userId._id, { $pull: { issuedBooks: issueId } });

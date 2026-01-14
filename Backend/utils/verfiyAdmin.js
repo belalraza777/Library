@@ -2,7 +2,7 @@ const User = require("../models/usersModel");
 
 module.exports = async function isAdmin(req, res, next) {
     try {
-        const user = await User.findOne({ email: req.user.email });
+        const user = await User.findById(req.user.id);
         if (!user) {
             return res.status(404).json({
                 success: false,
