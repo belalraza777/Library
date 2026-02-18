@@ -1,19 +1,23 @@
-// AdminPanel.jsx - Administrative Book Management Panel
-// This component provides the interface for administrators to manage the library's book collection,
-// allowing them to add new books, edit existing ones, and delete books.
-import React, { useEffect, useState } from "react";
+// AdminPanel.js
+import React, { useEffect, useState, useMemo } from "react";
+import { filterBooks } from "../../helpers/filterBooks";
 import Swal from "sweetalert2";
-import { getAllBooks, addNewBook, updateBook, deleteBook } from "../../api/books"; // API functions for book operations
-import BookTable from "./bookTable"; // Table component to display the list of books
-import BookFormModal from "./BookFormModal"; // Modal component to wrap the BookForm for better UX
-import SkeletonLoader from "../../components/common/skeletonLoader"; // Import the reusable skeleton loader
+import { getAllBooks, addNewBook, updateBook, deleteBook } from "../../api/books";
+import BookTable from "./bookTable";
+import BookFormModal from "./BookFormModal";
+import SkeletonLoader from "../../components/common/skeletonLoader";
 
 export default function AdminPanel() {
-
-  // State to hold the list of all books fetched from the backend
+  // Store all books
   const [books, setBooks] = useState([]);
+
+  // Loading state
   const [loading, setLoading] = useState(true);
-  // State for form input data, used for both adding new books and updating existing ones
+
+  // Search input state
+  const [search, setSearch] = useState("");
+
+  // Form state for add/edit book
   const [form, setForm] = useState({
     title: "",
     author: "",
@@ -24,43 +28,50 @@ export default function AdminPanel() {
     image: "",
   });
 
-  // State to store the ID of the book currently being edited; null if adding a new book
+  // Track which book is being edited
   const [editingId, setEditingId] = useState(null);
 
-  // State to control the visibility of the BookFormModal
+  // Modal open/close state
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Asynchronous function to fetch all books from the backend API
-  async function fetchBooks() {
-    try {
-      const res = await getAllBooks();
-      if (res.success) setBooks(res.data); // Update the books state if the API call is successful
-    }
-    catch (err) {
-      console.log(err);
-    } finally {
-      setLoading(false);
-    }
-  }
+  // Filter books based on search input
+  const filteredBooks = useMemo(
+    () => filterBooks(books, search),
+    [books, search]
+  );
 
-  // useEffect hook to fetch books when the component mounts
+  // Fetch all books from API
+ async function fetchBooks() {
+  try {
+    const res = await getAllBooks();
+    setBooks(Array.isArray(res) ? res : res.data || []);
+  } catch (err) {
+    console.log(err);
+    setBooks([]);
+  } finally {
+    setLoading(false);
+  }
+}
+
+  // Run fetchBooks once when component loads
   useEffect(() => {
     fetchBooks();
-  }, []); // Empty dependency array ensures this runs only once on mount
+  }, []);
 
-  // Handles form submission for both adding new books and updating existing ones
+  // Handle add or update book
   async function handleSubmit(e) {
-    e.preventDefault(); // Prevents default form submission behavior
+    e.preventDefault();
 
     if (editingId) {
-      // If editingId is present, update the existing book
+      // Update book
       await updateBook(editingId, form);
-      setEditingId(null); // Reset edit mode after update
+      setEditingId(null);
     } else {
-      // If no editingId, add a new book
+      // Add new book
       await addNewBook(form);
     }
-    // Reset form fields to initial empty values after submission
+
+    // Reset form
     setForm({
       title: "",
       author: "",
@@ -71,12 +82,11 @@ export default function AdminPanel() {
       image: "",
     });
 
-    fetchBooks(); // Refresh the book list to show the latest changes
-
-    setIsModalOpen(false); // Close the modal after successful submission
+    fetchBooks(); // reload books
+    setIsModalOpen(false); // close modal
   }
 
-  // Handles the deletion of a book by its ID
+  // Delete book with confirmation
   async function handleDelete(id) {
     const result = await Swal.fire({
       title: "Are you sure?",
@@ -92,7 +102,7 @@ export default function AdminPanel() {
     if (result.isConfirmed) {
       try {
         await deleteBook(id);
-        fetchBooks(); // Refresh the book list
+        fetchBooks();
         Swal.fire("Deleted!", "The book has been deleted.", "success");
       } catch (error) {
         Swal.fire("Error", "Something went wrong while deleting.", "error");
@@ -100,7 +110,7 @@ export default function AdminPanel() {
     }
   }
 
-  // Fills the form with selected book data and opens the modal for editing
+  // Open modal and fill form for editing
   function handleEdit(book) {
     setForm({
       title: book.title,
@@ -111,15 +121,14 @@ export default function AdminPanel() {
       isbn: book.isbn || "",
       image: book.image || "",
     });
-    setEditingId(book._id); // Set the ID of the book being edited
 
-    setIsModalOpen(true); // Open the modal for editing
+    setEditingId(book._id);
+    setIsModalOpen(true);
   }
 
-  // Opens the modal for adding a new book and resets the form
+  // Open modal for adding new book
   const handleAddBookClick = () => {
-    setEditingId(null); // Ensure no editingId is set for new book creation
-    // Reset form fields to empty for a new book entry
+    setEditingId(null);
     setForm({
       title: "",
       author: "",
@@ -129,14 +138,13 @@ export default function AdminPanel() {
       isbn: "",
       image: "",
     });
-    setIsModalOpen(true); // Open the modal
+    setIsModalOpen(true);
   };
 
-  // Closes the book form modal and resets editing state
+  // Close modal and reset form
   const handleCloseModal = () => {
-    setIsModalOpen(false); // Close the modal
-    setEditingId(null); // Reset editingId when closing modal
-    // Reset form fields to empty
+    setIsModalOpen(false);
+    setEditingId(null);
     setForm({
       title: "",
       author: "",
@@ -148,64 +156,63 @@ export default function AdminPanel() {
     });
   };
 
-  // Show skeleton loader while fetching data
+  // Show loading skeleton
   if (loading) {
     return (
-      // Main container for the admin dashboard (forced dark theme)
       <div className="bg-gray-900 text-white min-h-screen font-sans">
-        <div className="container mx-auto p-4 sm:p-6 lg:p-8">
-          {/* Skeleton for statistics cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            <SkeletonLoader type="card" count={3} />
-          </div>
-          {/* Skeleton for tab content */}
-          <div className="bg-gray-800 shadow-lg rounded-lg p-4 sm:p-6 border border-gray-700">
-            <SkeletonLoader type="card" count={1} />
-          </div>
+        <div className="container mx-auto p-4">
+          <SkeletonLoader type="card" count={3} />
         </div>
       </div>
-    )
+    );
   }
 
-
   return (
-    // Main container for the admin panel with styling for background, minimum height, and padding
-    <main className="bg-gray-900 min-h-screen p-4 sm:p-6 lg:p-8 text-gray-100">
+    <main className="bg-gray-900 min-h-screen p-4 text-gray-100">
       <div className="max-w-7xl mx-auto">
-        {/* Header section for Book Management */}
-        <header className="mb-8 text-center md:text-left">
-          <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-2 flex items-center">
-            <i className="fas fa-book mr-3 text-indigo-500"></i>Book Management
-          </h1>
-          <p className="text-gray-400 text-lg">
-            Add, edit, and delete books in your library collection.
+        {/* Header */}
+        <header className="mb-8">
+          <h1 className="text-3xl font-bold">Book Management</h1>
+          <p className="text-gray-400">
+            Add, edit, and delete books.
           </p>
         </header>
 
-        {/* Add Book Button */}
+        {/* Add book button */}
         <div className="flex justify-end mb-6">
           <button
             onClick={handleAddBookClick}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out shadow-md"
+            className="bg-blue-600 text-white py-2 px-4 rounded"
           >
-            <i className="fas fa-plus-circle mr-2"></i> Add New Book
+            Add New Book
           </button>
         </div>
 
-        {/* Available Books Section */}
-        <section className="bg-gray-800 shadow-lg rounded-lg p-4 sm:p-6">
-          <h2 className="text-2xl font-semibold text-white mb-4 flex items-center">
-            <i className="fas fa-list-alt mr-2 text-green-500"></i>Available Books
-          </h2>
+        {/* Book list */}
+        <section className="bg-gray-800 rounded-lg p-6">
+          <h2 className="text-2xl mb-4">Available Books</h2>
+
+          {/* Search input */}
+          <div className="mb-4 flex justify-end">
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="🔍 Search by title or author......"
+              className="w-full px-3 py-2 rounded text-black bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-600"
+            />
+          </div>
+
+          {/* Book table */}
           <BookTable
-            books={books}
+            books={filteredBooks}
             handleEdit={handleEdit}
             handleDelete={handleDelete}
           />
         </section>
       </div>
 
-      {/* Book Form Modal */}
+      {/* Modal for add/edit book */}
       <BookFormModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}

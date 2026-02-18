@@ -8,19 +8,27 @@ const getAllIssues = async (req, res) => {
   return res.json({ success: true, message: "All issued books fetched successfully", data: allIssuedBooks });
 };
 
+
 // POST borrow a book
 const issueBook = async (req, res) => {
-  const { bookId } = req.params; // get book id from route params
-  const book = await Books.findById(bookId); // find the book in DB
-  
+  const { bookId } = req.params;
+  const book = await Books.findById(bookId);
   if (!book) {
     return res.status(404).json({ success: false, message: "Book not found", error: "Not Found" });
   }
-  
-  const user = await User.findById(req.user.id); // get current logged-in user
-  
+  const user = await User.findById(req.user.id);
   if (!user) {
     return res.status(404).json({ success: false, message: "User not found", error: "Not Found" });
+  }
+
+  // Check for unpaid fines (any issue with finePaid: false and fineAmount > 0)
+  const unpaidFine = await Issues.findOne({ userId: user._id, finePaid: false, fineAmount: { $gt: 0 } });
+  if (unpaidFine) {
+    return res.status(403).json({
+      success: false,
+      message: "You have unpaid fines. Please pay your fines before borrowing new books.",
+      error: "Unpaid Fine"
+    });
   }
 
   // check if the user already issued this book and hasn’t returned it yet
@@ -99,16 +107,17 @@ const mybooks = async (req, res) => {
 };
 
 
+
 // request to return a book by user
 const requestToReturnBook = async (req, res) => {
   const { issueId } = req.params;
   const issue = await Issues.findById(issueId).populate("bookId");
-  
   if (!issue) {
     return res.status(404).json({ success: false, message: "Issue record not found", error: "Not Found" });
   }
-  
+  // Freeze the fine at the time of return request
   issue.isReturnRequest = true;
+  issue.fineAmount = issue.fine; // Freeze the fine now
   await issue.save();
   return res.json({ success: true, message: "Request Sent for Return Successfully!", data: issue });
 };

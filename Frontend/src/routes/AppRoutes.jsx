@@ -18,79 +18,78 @@ import Profile from "../pages/users/profile";
 export default function AppRoutes() {
   return (
 
-    
-    <Routes>
-      {/* landing page */}
-      <Route path="/" element={<Landing />} />
+  <Routes>
+    {/* landing page */}
+    <Route path="/" element={<Landing />} />
 
-      {/* Home - Protected for member & admin */}
-      <Route
-        path="/books"
-        element={
-          <ProtectedRoute allowedRoles={["member", "admin"]}>
-            <HomePage />
-          </ProtectedRoute>
-        }
-      />
+    {/* Home - Protected for member & admin */}
+    <Route
+      path="/books"
+      element={
+        <ProtectedRoute allowedRoles={["member"]}>
+          <HomePage />
+        </ProtectedRoute>
+      }
+    />
 
-      {/* Book Details - Protected */}
-      <Route
-        path="/book/:id"
-        element={
-          <ProtectedRoute allowedRoles={["member", "admin"]}>
-            <BookDetailsPage />
-          </ProtectedRoute>
-        }
-      />
+    {/* Book Details - Protected */}
+    <Route
+      path="/book/:id"
+      element={
+        <ProtectedRoute allowedRoles={["member"]}>
+          <BookDetailsPage />
+        </ProtectedRoute>
+      }
+    />
 
-      {/* profile */}
-       <Route
-        path="/profile"
-        element={
-          <ProtectedRoute allowedRoles={["member", "admin"]}>
-            <Profile />
-          </ProtectedRoute>
-        }
-      />
+    {/* profile */}
+    <Route
+      path="/profile"
+      element={
+        <ProtectedRoute allowedRoles={["member", "admin"]}>
+          <Profile />
+        </ProtectedRoute>
+      }
+    />
 
-      {/* Public Routes */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
+    {/* Public Routes */}
+    <Route path="/login" element={<Login />} />
+    <Route path="/signup" element={<Signup />} />
 
-      {/* Member only */}
-      <Route
-        path="/userdashboard"
-        element={
-          <ProtectedRoute allowedRoles={["member", "admin"]}>
-            <UserDashboard />
-          </ProtectedRoute>
-        }
-      />
+    {/* Member only */}
+    <Route
+      path="/userdashboard"
+      element={
+        <ProtectedRoute allowedRoles={["member"]}>
+          <UserDashboard />
+        </ProtectedRoute>
+      }
+    />
 
-      {/* Admin only */}
-      <Route
-        path="/adminPanel"
-        element={
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <AdminPanel />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/adminDashboard"
-        element={
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <AdminDashboard />
-          </ProtectedRoute>
-        }
-      />
+    {/* Admin only */}
+    <Route
+      path="/adminPanel"
+      element={
+        <ProtectedRoute allowedRoles={["admin"]}>
+          <AdminPanel />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/adminDashboard"
+      element={
+        <ProtectedRoute allowedRoles={["admin"]}>
+          <AdminDashboard />
+        </ProtectedRoute>
+      }
+    />
 
-      {/* Unauthorized Page */}
-      <Route path="/unauthorized" element={<Unauthorized />} />
+    {/* Unauthorized Page */}
+    <Route path="/unauthorized" element={<Unauthorized />} />
 
-      {/* unknown page */}
-      <Route path="*" element={<Unknown />} />
+    {/* unknown page */}
+    <Route path="*" element={<Unknown />} />
 
-    </Routes>
+  </Routes>
   );
 }

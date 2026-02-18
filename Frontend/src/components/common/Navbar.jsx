@@ -11,23 +11,27 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <NavLink 
-            className="text-xl md:text-2xl font-bold flex items-center transition-transform " 
+          <NavLink
+            className="text-xl md:text-2xl font-bold flex items-center transition-transform "
           >
-            <i className="fas fa-book mr-2 text-blue-400"></i> 
+            <i className="fas fa-book mr-2 text-blue-400"></i>
             <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
               Library
             </span>
           </NavLink>
 
           {/* Desktop Menu */}
+
           <div className="hidden md:flex items-center space-x-1">
-            <NavLink 
-              to="/books" 
-              className="nav-item"
-            >
-              <i className="fas fa-home mr-2"></i>Home
-            </NavLink>
+
+            {user?.role === "member" && (
+              <NavLink
+                to="/books"
+                className="nav-item"
+              >
+                <i className="fas fa-home mr-2"></i>Home
+              </NavLink>
+            )}
 
             {!user && (
               <>
@@ -83,26 +87,29 @@ const Navbar = () => {
       {isOpen && (
         <div className="md:hidden bg-gray-800 border-t border-gray-700 shadow-xl">
           <div className="px-2 pt-2 pb-3 space-y-1">
-            <NavLink 
-              to="/books" 
-              className="mobile-item" 
-              onClick={() => setIsOpen(false)}
-            >
-              <i className="fas fa-home mr-3 w-5 text-center"></i>Home
-            </NavLink>
+
+            {user?.role === "member" && (
+              <NavLink
+                to="/books"
+                className="mobile-item"
+                onClick={() => setIsOpen(false)}
+              >
+                <i className="fas fa-home mr-3 w-5 text-center"></i>Home
+              </NavLink>
+            )}
 
             {!user && (
               <>
-                <NavLink 
-                  to="/login" 
-                  className="mobile-item" 
+                <NavLink
+                  to="/login"
+                  className="mobile-item"
                   onClick={() => setIsOpen(false)}
                 >
                   <i className="fas fa-sign-in-alt mr-3 w-5 text-center"></i>Login
                 </NavLink>
-                <NavLink 
-                  to="/signup" 
-                  className="mobile-item bg-blue-600 hover:bg-blue-700" 
+                <NavLink
+                  to="/signup"
+                  className="mobile-item bg-blue-600 hover:bg-blue-700"
                   onClick={() => setIsOpen(false)}
                 >
                   <i className="fas fa-user-plus mr-3 w-5 text-center"></i>Signup
@@ -112,16 +119,16 @@ const Navbar = () => {
 
             {user?.role === "admin" ? (
               <>
-                <NavLink 
-                  to="/adminPanel" 
-                  className="mobile-item" 
+                <NavLink
+                  to="/adminPanel"
+                  className="mobile-item"
                   onClick={() => setIsOpen(false)}
                 >
                   <i className="fas fa-user-shield mr-3 w-5 text-center"></i>Admin Panel
                 </NavLink>
-                <NavLink 
-                  to="/adminDashboard" 
-                  className="mobile-item" 
+                <NavLink
+                  to="/adminDashboard"
+                  className="mobile-item"
                   onClick={() => setIsOpen(false)}
                 >
                   <i className="fas fa-chart-bar mr-3 w-5 text-center"></i>Admin Dashboard
@@ -129,9 +136,9 @@ const Navbar = () => {
               </>
             ) : (
               user?.role === "member" && (
-                <NavLink 
-                  to="/userdashboard" 
-                  className="mobile-item" 
+                <NavLink
+                  to="/userdashboard"
+                  className="mobile-item"
                   onClick={() => setIsOpen(false)}
                 >
                   <i className="fas fa-user-cog mr-3 w-5 text-center"></i>User Dashboard
@@ -140,9 +147,9 @@ const Navbar = () => {
             )}
 
             {user && (
-              <NavLink 
-                to="/profile" 
-                className="mobile-item" 
+              <NavLink
+                to="/profile"
+                className="mobile-item"
                 onClick={() => setIsOpen(false)}
               >
                 <i className="fas fa-user-circle mr-3 w-5 text-center"></i>Profile

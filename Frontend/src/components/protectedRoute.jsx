@@ -17,6 +17,10 @@ export default function ProtectedRoute({ children, allowedRoles }) {
     return <Navigate to="/unauthorized" replace />;
   }
 
+  if (user.role === "admin" && !allowedRoles.includes("admin")) {
+    return <Navigate to="/adminDashboard" replace />;
+  }
+
   // 3. All good
   return children;
 }

@@ -13,7 +13,7 @@ const loginUser = async (req, res) => {
   if (!matchPassword) {
     return res.status(400).json({ success: false, message: "Invalid credentials!", error: "Authentication Failed" });
   }
-  const token = jwt.sign({ id: user._id, username: user.username, role: user.role }, process.env.JWT_SECRET);
+  const token = jwt.sign({ id: user._id, username: user.username, role: user.role, email: user.email }, process.env.JWT_SECRET);
   res.cookie("token", token, {
     httpOnly: true,
     maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days in ms
@@ -34,7 +34,7 @@ const signupUser = async (req, res, next) => {
   const newUser = new User({ username, email, password: hash });
   const user = await newUser.save();
   // Generate token and Set cookie
-  const token = jwt.sign({ id: user._id, username, role: user.role }, process.env.JWT_SECRET);
+  const token = jwt.sign({ id: user._id, username, role: user.role, email: user.email }, process.env.JWT_SECRET);
   res.cookie("token", token, {
     httpOnly: true,
     maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days in ms

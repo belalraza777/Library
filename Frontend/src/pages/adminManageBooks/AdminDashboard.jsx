@@ -1,7 +1,7 @@
 // AdminDashboard.jsx - Administrative Dashboard for managing issued books and return requests.
 // This component provides an overview of book issuance statistics and allows administrators to switch between
 // viewing issued books and pending return requests.
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { getAllIssues } from '../../api/issues' // API function to fetch all issued books
 import IssuedBooksTable from './issuedBooksTable'; // Component to display issued books
 import ReturnRequestsTable from './returnRequestsTable'; // Component to display return requests
@@ -32,11 +32,10 @@ export default function AdminDashboard() {
         issuedBooks();
     }, []) // Empty dependency array ensures this runs only once on mount
 
-    // Filter books into two lists: currently issued and pending return requests
-    const issuedBooksList = allIssuesBooks.filter(book => !book.isReturnRequest);
-    const returnRequestsList = allIssuesBooks.filter(book => book.isReturnRequest);
-    const overdueList = allIssuesBooks.filter((book) =>( book.fine > 0));
-    console.log(overdueList);
+    // Memoized filtered lists for performance
+    const issuedBooksList = useMemo(() => allIssuesBooks.filter(book => !book.isReturnRequest), [allIssuesBooks]);
+    const returnRequestsList = useMemo(() => allIssuesBooks.filter(book => book.isReturnRequest), [allIssuesBooks]);
+    const overdueList = useMemo(() => allIssuesBooks.filter(book => book.fine > 0), [allIssuesBooks]);
     
     // Show skeleton loader while fetching data
     if (loading) {

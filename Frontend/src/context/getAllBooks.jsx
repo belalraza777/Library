@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { getAllBooks } from '../api/books';
 
+// Custom hook to fetch all books and manage loading state
+// This hook can be used across different components to access the list of books and loading status
 function useGetAllBooks() {
 
     const [allBooks, setAllBooks] = useState([]);
@@ -21,7 +23,8 @@ function useGetAllBooks() {
         };
         getBooks();
     }, []);
-    return { allBooks, loading };
+    const memoizedBooks = useMemo(() => allBooks, [allBooks]);
+    return { allBooks: memoizedBooks, loading };
 }
 
 export default useGetAllBooks;

@@ -20,7 +20,7 @@ app.use(morgan("combined")); // Logging HTTP requests
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
+    origin: process.env.FRONTEND_URL || "http://localhost:5173", // Allow requests from this origin
     credentials: true,
   })
 );
